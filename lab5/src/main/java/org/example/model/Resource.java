@@ -4,47 +4,39 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Clasa care reprezinta o resursa bibliografica (carte, articol web, etc.).
- * Contine identificatori de baza si un map pentru proprietati aditionale.
+ * Clasa care reprezinta o resursa bibliografica.
  */
 public class Resource {
     private String id;
     private String title;
-    private String location; // Poate fi cale locala sau URL
+    private String location;
     private Map<String, String> properties = new HashMap<>();
 
-    /**
-     * Constructor pentru initializarea unei resurse noi.
-     * @param id Identificatorul unic
-     * @param title Titlul resursei
-     * @param location Calea in sistemul de fisiere sau adresa Web
-     */
+    // Constructor gol, obligatoriu pentru Jackson (salvare/incarcare JSON)
+    public Resource() {}
+
     public Resource(String id, String title, String location) {
         this.id = id;
         this.title = title;
         this.location = location;
     }
 
-    /**
-     * Adauga o proprietate suplimentara resursei (ex: author, year).
-     * @param key Numele proprietatii
-     * @param value Valoarea proprietatii
-     */
     public void addProperty(String key, String value) {
         properties.put(key, value);
     }
 
+    // Getteri si setteri (Obligatorii pentru Jackson)
     public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
     public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    public Map<String, String> getProperties() { return properties; }
+    public void setProperties(Map<String, String> properties) { this.properties = properties; }
 
     @Override
     public String toString() {
-        return "Resource{" +
-                "id='" + id + '\'' +
-                ", title='" + title + '\'' +
-                ", location='" + location + '\'' +
-                ", properties=" + properties +
-                '}';
+        return "Resource [id=" + id + ", title=" + title + ", location=" + location + "]";
     }
 }

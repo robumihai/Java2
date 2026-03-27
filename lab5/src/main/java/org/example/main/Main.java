@@ -1,52 +1,48 @@
 package org.example.main;
 
+import org.example.command.*;
 import org.example.exception.CatalogException;
 import org.example.model.Resource;
 import org.example.repository.Catalog;
 
-/**
- * Clasa principala care testeaza functionalitatile Compulsory pentru Lab 5.
- */
 public class Main {
     public static void main(String[] args) {
-        // 1. Cream obiectul care reprezinta repository-ul
-        Catalog catalog = new Catalog("My References");
-
-        // 2. Adaugam resurse in catalog
-        Resource r1 = new Resource("knuth67", "The Art of Computer Programming", "d:/books/programming/tacp.ps");
-        r1.addProperty("year", "1967");
-        r1.addProperty("author", "Donald E. Knuth");
-
-        Resource r2 = new Resource("jvm25", "The Java Virtual Machine Specification", "https://docs.oracle.com/javase/specs/jvms/se25/html/index.html");
-        r2.addProperty("year", "2025");
-        r2.addProperty("author", "Tim Lindholm & others");
-
-        Resource r3 = new Resource("java25", "The Java Language Specification", "https://docs.oracle.com/javase/specs/jls/se25/jls25.pdf");
-        r3.addProperty("year", "2025");
-        r3.addProperty("author", "James Gosling & others");
-
-        catalog.add(r1);
-        catalog.add(r2);
-        catalog.add(r3);
-
-        System.out.println("Am incarcat " + catalog.findById("jvm25").getTitle() + " in catalog.");
-
-        // 3. Deschidem o resursa folosind clasa Desktop (cu Exception Handling cerut)
         try {
-            System.out.println("Incerc sa deschid link-ul JVM Specification in browser...");
-            // link valid
-            catalog.open(r2);
-            System.out.println("Resursa deschisa cu succes!");
+            // 1. Initializare Catalog
+            Catalog catalog = new Catalog("My References");
 
-            // link invalid
-            catalog.open(r1);
+            Resource r1 = new Resource("knuth67", "The Art of Computer Programming", "d:/books/tacp.ps");
+            Resource r2 = new Resource("jvm25", "The Java Virtual Machine Specification", "https://docs.oracle.com/javase/specs/jvms/se25/html/index.html");
+
+            // 2. Adaugare elemente folosind AddCommand
+            new AddCommand(catalog, r1).execute();
+            new AddCommand(catalog, r2).execute();
+
+            // 3. Afisare folosind ListCommand
+            System.out.println("--- LIST COMMAND ---");
+            new ListCommand(catalog).execute();
+
+            // 4. Salvare in fisier JSON folosind SaveCommand
+            System.out.println("\n--- SAVE COMMAND ---");
+            new SaveCommand(catalog, "catalog.json").execute();
+
+            // 5. Incarcare din fisier JSON folosind LoadCommand
+            System.out.println("\n--- LOAD COMMAND ---");
+            LoadCommand loadCommand = new LoadCommand("catalog.json");
+            loadCommand.execute();
+            Catalog loadedCatalog = loadCommand.getLoadedCatalog();
+
+            // 6. Generare raport HTML folosind ReportCommand (Se va deschide singur)
+            System.out.println("\n--- REPORT COMMAND ---");
+            new ReportCommand(loadedCatalog, "raport_catalog.html").execute();
+
+            // 7. Deschidere fisier folosind ViewCommand (Link-ul Oracle va merge sigur)
+            System.out.println("\n--- VIEW COMMAND ---");
+            System.out.println("Incerc deschiderea resursei...");
+            new ViewCommand(loadedCatalog.findById("jvm25")).execute();
 
         } catch (CatalogException e) {
-            // Aici logam in mod corect exceptia noastra custom
-            System.err.println("Eroare in operatiunea de deschidere: " + e.getMessage());
-            if (e.getCause() != null) {
-                System.err.println("Cauza tehnica a fost: " + e.getCause().getMessage());
-            }
+            System.err.println("A aparut o eroare in executia unei comenzi: " + e.getMessage());
         }
     }
 }

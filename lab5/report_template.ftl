@@ -1,0 +1,1 @@
+<html><head><title>Catalog Report</title></head><body><h1>Raport Catalog: ${catalog.name}</h1><ul><#list catalog.resources as res><li><b>${res.title}</b> (${res.location})</li></#list></ul></body></html>
