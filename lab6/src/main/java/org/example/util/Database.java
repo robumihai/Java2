@@ -1,46 +1,39 @@
 package org.example.util;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Clasa Singleton responsabila de gestionarea conexiunii cu baza de date.
- * Ne asigura ca exista o singura conexiune activa la nivel de aplicatie.
- */
+// clasa singleton pentru gestionarea pool-ului de conexiuni
 public class Database {
-    // Schimba cu datele tale din pgAdmin
-    private static final String URL = "jdbc:postgresql://localhost:5432/movies_db";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "parola_mea_secreta";
+    private static HikariDataSource dataSource;
 
-    private static Connection connection = null;
+    // bloc static pentru a initializa hikaricp o singura data
+    static {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:postgresql://localhost:5432/movies_db");
+        config.setUsername("postgres");
+        config.setPassword("1234");
 
-    // Constructor privat pentru a preveni instantierea din afara
-    private Database() {}
+        // setari specifice pentru pool-ul de conexiuni
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(2);
 
-    /**
-     * Metoda care returneaza conexiunea activa. Daca nu exista, o creeaza.
-     * @return Conexiunea la baza de date
-     * @throws SQLException Daca datele de conectare sunt gresite
-     */
-    public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        }
-        return connection;
+        dataSource = new HikariDataSource(config);
     }
 
-    /**
-     * Inchide conexiunea la baza de date in mod controlat.
-     */
-    public static void closeConnection() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            System.err.println("Eroare la inchiderea conexiunii: " + e.getMessage());
+    private Database() {}
+
+    // metoda care extrage o conexiune disponibila din pool
+    public static Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
+
+    // inchidem tot pool-ul la finalul aplicatiei
+    public static void closePool() {
+        if (dataSource != null) {
+            dataSource.close();
         }
     }
 }

@@ -1,0 +1,1 @@
+<html><head><title>raport filme</title></head><body><h1>catalogul filmelor (din view)</h1><table border='1'><tr><th>titlu</th><th>lansare</th><th>durata (min)</th><th>scor</th><th>gen</th></tr><#list movies as m><tr><td>${m.title}</td><td>${m.releaseDate}</td><td>${m.duration}</td><td>${m.score}</td><td>${m.genreName}</td></tr></#list></table></body></html>

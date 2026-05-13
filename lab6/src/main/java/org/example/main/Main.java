@@ -1,39 +1,41 @@
 package org.example.main;
 
 import org.example.dao.GenreDAO;
+import org.example.dao.MovieDAO;
+import org.example.report.ReportGenerator;
 import org.example.util.Database;
-import java.sql.SQLException;
 
-/**
- * Clasa principala care testeaza operatiunile JDBC pentru Compulsory Lab 6.
- */
 public class Main {
     public static void main(String[] args) {
         try {
-            GenreDAO genres = new GenreDAO();
+            GenreDAO genreDAO = new GenreDAO();
+            MovieDAO movieDAO = new MovieDAO();
 
-            System.out.println("Incerc sa ma conectez la baza de date si sa adaug date...");
+            System.out.println("conectare reusita. generam raportul...");
 
-            // 1. Inseram cateva genuri noi (Atentie: daca rulezi de 2 ori o sa dea eroare
-            // de UNIQUE constraint, deci prima oara ruleaza asa, apoi le comentezi)
-            genres.create("Action");
-            genres.create("Drama");
-            genres.create("Comedy");
+            // comentam partea de adaugare ca sa nu mai faca duplicate
+            /*
+            try {
+                genreDAO.create("Sci-Fi");
+            } catch (java.sql.SQLException e) {
+            }
 
-            // 2. Cautam genurile folosind DAO si afisam rezultatul
-            int actionId = genres.findByName("Action");
-            System.out.println("Genul 'Action' a fost gasit cu ID-ul: " + actionId);
+            Integer genreId = genreDAO.findByName("Sci-Fi");
+            if (genreId != null) {
+                movieDAO.create("Interstellar", java.sql.Date.valueOf("2014-11-07"), 169, 8.6, genreId);
+                movieDAO.create("The Matrix", java.sql.Date.valueOf("1999-03-31"), 136, 8.7, genreId);
+            }
+            */
 
-            String genreName = genres.findById(actionId);
-            System.out.println("Genul cu ID-ul " + actionId + " se numeste: " + genreName);
+            System.out.println("generam raportul html din view...");
+            ReportGenerator reportGenerator = new ReportGenerator();
+            reportGenerator.generateReport();
 
-            System.out.println("Toate testele au trecut cu succes!");
-
-        } catch (SQLException e) {
-            System.err.println("O eroare SQL a aparut: " + e.getMessage());
+            // prindem o exceptie generala, nu doar pe cea de sql
+        } catch (Exception e) {
+            System.err.println("a aparut o eroare neasteptata: " + e.getMessage());
         } finally {
-            // Indiferent ce se intampla, inchidem conexiunea la final
-            Database.closeConnection();
+            Database.closePool();
         }
     }
 }
